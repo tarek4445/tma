@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>تسجيل دخول</title>
+</head>
+<body>
+  <div class="container">
+    <h1>تسجيل دخول</h1>
+
+    <form action="login.php" method="post">
+      <div class="form-group">
+        <label for="username">اسم المستخدم</label>
+        <input type="text" class="form-control" id="username" name="username" placeholder="ادخل اسم المستخدم">
+      </div>
+      <div class="form-group">
+        <label for="password">كلمة المرور</label>
+        <input type="password" class="form-control" id="password" name="password" placeholder="ادخل كلمة المرور">
+      </div>
+      <button type="submit" class="btn btn-primary">تسجيل دخول</button>
+    </form>
+  </div>
+</body>
+</html>
+<?php
+  // تحقق من وجود اسم مستخدم وكلمة مرور تم إرسالها
+  if (isset($_POST['username']) && isset($_POST['password'])) {
+    // قم بتوصيل قاعدة البيانات
+    $db = new PDO('mysql:host=localhost;dbname=my_database', 'root', '');
+
+    // تحقق من وجود اسم المستخدم وكلمة المرور في قاعدة البيانات
+    $sql = "SELECT * FROM users WHERE username = :username AND password = :password";
+    $stmt = $db->prepare($sql);
+    $stmt->execute(array(':username' => $_POST['username'], ':password' => $_POST['password']));
+
+    // إذا تم العثور على اسم المستخدم وكلمة المرور ، فقم بتسجيل دخول المستخدم
+    if ($stmt->rowCount() > 0) {
+      // قم بتعيين الجلسة
+      session_start();
+      $_SESSION['username'] = $_POST['username'];
+
+      // أعد توجيه المستخدم إلى الصفحة الرئيسية
+      header('Location: index.php');
+    } else {
+      // أظهر رسالة خطأ
+      echo '<div class="alert alert-danger">اسم المستخدم أو كلمة المرور غير صحيحين</div>';
+    }
+  }
+?>
